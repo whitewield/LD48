@@ -9,12 +9,15 @@ public class CS_GameManager : MonoBehaviour {
     [SerializeField] List<int> myArrangeList = new List<int> ();
     private List<CS_Planet> myPlanetList = new List<CS_Planet> ();
     [SerializeField] float myRootRadius = 5;
-    [SerializeField] float myRootSpeed = 100;
+    [SerializeField] float myRootSpeed = 36;
     private List<CS_Planet> myPlanetRootList = new List<CS_Planet> ();
     private List<CS_Planet> myPlanetEndList = new List<CS_Planet> ();
     [SerializeField] List<float> myRadiusList = new List<float> ();
     [SerializeField] List<float> mySpeedList = new List<float> ();
     private int seed;
+
+    [Header ("UI")]
+    [SerializeField] float myRootSpeedMultiplier = 360;
 
     private void Start () {
         // get seed
@@ -77,4 +80,12 @@ public class CS_GameManager : MonoBehaviour {
             SceneManager.LoadScene (SceneManager.GetActiveScene ().name);
         }
     }
+
+    public void OnSlider_Speed (float g_value) {
+        float t_speed = g_value * g_value * myRootSpeedMultiplier;
+
+		foreach (CS_Planet f_root in myPlanetRootList) {
+			f_root.SetSpeed (t_speed);
+		}
+	}
 }

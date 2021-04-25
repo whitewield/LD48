@@ -16,6 +16,7 @@ public class CS_Planet : MonoBehaviour {
     [SerializeField] CircleCollider2D myCollider = null;
 
     private CS_Planet myParent = null;
+    private List<CS_Planet> myChildrenList = new List<CS_Planet> ();
     private bool isEnd = true;
     private TrailRenderer myTrail = null;
 
@@ -31,6 +32,14 @@ public class CS_Planet : MonoBehaviour {
         myRotationZ = Random.Range (0, 360f);
         // temp: set color
         mySpriteRenderer.color = myGradient.Evaluate (Random.Range (0, 1f));
+    }
+
+    public void SetSpeed (float g_multiplier) {
+        myMultiplier_Speed = g_multiplier;
+    }
+
+    public void SetRadius (float g_multiplier) {
+        myMultiplier_Radius = g_multiplier;
     }
 
     public void SetChild (Transform g_child) {
