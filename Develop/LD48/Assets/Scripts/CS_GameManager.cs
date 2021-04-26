@@ -5,6 +5,8 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
+using Hang.AiryAudio;
+
 public class CS_GameManager : MonoBehaviour {
     private static CS_GameManager instance = null;
     public static CS_GameManager Instance { get { return instance; } }
@@ -12,7 +14,7 @@ public class CS_GameManager : MonoBehaviour {
     [SerializeField] GameObject myPlanetPrefab = null;
     [SerializeField] GameObject myTrailPrefab = null;
     [SerializeField] GameObject myTrailAnswerPrefab = null;
-    [SerializeField] List<int> myArrangeList = new List<int> ();
+    private List<int> myArrangeList = new List<int> ();
     private List<CS_Planet> myPlanetList = new List<CS_Planet> ();
     private List<CS_Planet> myAnswerList = new List<CS_Planet> ();
     [SerializeField] float myAnswerSpeed = 180;
@@ -31,6 +33,12 @@ public class CS_GameManager : MonoBehaviour {
     private float myCurrentValue;
 
     [Header ("UI")]
+    [SerializeField] GameObject myUI = null;
+    [SerializeField] GameObject myPage_Menu = null;
+    [SerializeField] GameObject myObject_ButtonShow = null;
+    [SerializeField] GameObject myObject_ButtonGameOverHome = null;
+    [SerializeField] GameObject myObject_GameOver = null;
+
     [SerializeField] GraphicRaycaster myGraphicRaycaster = null;
     [SerializeField] GameObject myPage_Planet = null;
     [SerializeField] CS_UI_Area_Speed myArea_Speed = null;
@@ -62,6 +70,16 @@ public class CS_GameManager : MonoBehaviour {
         mySlider_Main.SetValueWithoutNotify (Mathf.Sqrt (myRootSpeed / myRootSpeedMultiplier));
         // hide current option
         myCurrentOption.gameObject.SetActive (false);
+        // hide show all button
+        myObject_ButtonShow.SetActive (false);
+        myObject_ButtonGameOverHome.SetActive (false);
+        // hide menu
+        myPage_Menu.SetActive (false);
+        // hide game over effect
+        myObject_GameOver.SetActive (false);
+
+        // get arrange list
+        myArrangeList = CS_DataManager.Instance.myArrangeList;
 
         // get seed
         seed = (int)System.DateTime.Now.Ticks;
@@ -95,9 +113,20 @@ public class CS_GameManager : MonoBehaviour {
                 Debug.Log (f_radius + "-" + f_speed);
             }
             // get random rotation Z
-            float  f_rotationZ = Random.Range (0, 360f);
+            float f_rotationZ = Random.Range (0, 360f);
+            //if (f_parent != null) {
+            //    CS_Planet t_brother = f_parent.GetChild ();
+            //    if (t_brother != null) {
+            //        f_rotationZ = t_brother.GetStartRotationZ () + 180;
+            //    }
+            //}
+            if (f_parent == null) {
+                if (t_answerParents.Count > 0) {
+                    f_rotationZ = t_answerParents[0].GetStartRotationZ () + 180;
+                }
+            }
             // init planet
-            f_planet.Init (f_parent, f_radius, f_speed, f_rotationZ);
+            f_planet.Init (f_parent, f_radius, f_speed, f_rotationZ, "L" + GetSoundIndex (f_radius).ToString ());
             // add to list
             myAnswerList.Add (f_planet);
         }
@@ -130,7 +159,7 @@ public class CS_GameManager : MonoBehaviour {
             // get gradient
             Gradient f_gradient = myGradientList[Random.Range (0, myGradientList.Count)];
             // init planet
-            f_planet.Init (f_parent, f_radius, f_speed, myAnswerList[i].GetStartRotationZ (), f_gradient);
+            f_planet.Init (f_parent, f_radius, f_speed, myAnswerList[i].GetStartRotationZ (), "H" + GetSoundIndex (f_radius).ToString (), f_gradient);
             // add to list
             myPlanetList.Add (f_planet);
         }
@@ -194,7 +223,7 @@ public class CS_GameManager : MonoBehaviour {
 
     private void Update () {
         if (Input.GetKeyDown (KeyCode.R)) {
-            SceneManager.LoadScene (SceneManager.GetActiveScene ().name);
+            OnButtonRestart ();
         }
     }
 
@@ -214,6 +243,11 @@ public class CS_GameManager : MonoBehaviour {
         if (myCurrentPlanet == g_planet) {
             return false;
         }
+
+        AiryAudioSource t_airyAudioSource = AiryAudioManager.Instance.InitAudioSource ("Drop");
+        AiryAudioActions.Play (t_airyAudioSource);
+
+
         myCurrentPlanet = g_planet;
         CS_CameraManager.Instance.LookAt (g_planet);
 
@@ -256,12 +290,29 @@ public class CS_GameManager : MonoBehaviour {
         isGameOver = true;
         OnClickPlanet (null);
         // show game over effect
+        myObject_GameOver.SetActive (true);
+        HideAll ();
+
+        // remove answer trail
+        foreach (CS_Planet f_planet in myAnswerList) {
+            f_planet.HideTail ();
+            f_planet.RemoveSFX ();
+        }
+
+        AiryAudioSource t_airyAudioSource = AiryAudioManager.Instance.InitAudioSource ("GameOver");
+        AiryAudioActions.Play (t_airyAudioSource);
+
+        myObject_ButtonGameOverHome.SetActive (true);
+
         return true;
     }
 
     // UI
 
     public void OnOption_Click (float g_value) {
+        AiryAudioSource t_airyAudioSource = AiryAudioManager.Instance.InitAudioSource ("Button");
+        AiryAudioActions.Play (t_airyAudioSource);
+
         myCurrentValue = g_value;
         myCurrentOption.gameObject.SetActive (true);
         myCurrentOption.transform.position = Input.mousePosition;
@@ -275,6 +326,9 @@ public class CS_GameManager : MonoBehaviour {
     }
 
     public void OnOption_Release () {
+        AiryAudioSource t_airyAudioSource = AiryAudioManager.Instance.InitAudioSource ("Drop");
+        AiryAudioActions.Play (t_airyAudioSource);
+
         myCurrentOption.gameObject.SetActive (false);
 
         PointerEventData t_pointerEventData = new PointerEventData (EventSystem.current);
@@ -288,9 +342,9 @@ public class CS_GameManager : MonoBehaviour {
             if (f_result.gameObject.GetComponent<CS_UI_Area_Radius> () == true) {
                 // set radius
                 if (myCurrentPlanet != null) {
-                    myCurrentPlanet.LerpMultiplier_Radius (myCurrentValue);
-                    FixedUpdate ();
-                    ClearTrail ();
+                    myCurrentPlanet.LerpMultiplier_Radius (myCurrentValue, "H" + GetSoundIndex (myCurrentValue).ToString ());
+                    //FixedUpdate ();
+                    //ClearTrail ();
                 }
             } else if (f_result.gameObject.GetComponent<CS_UI_Area_Speed> () == true) {
                 // set speed
@@ -314,11 +368,61 @@ public class CS_GameManager : MonoBehaviour {
     }
 
     public void HideAll () {
+        AiryAudioSource t_airyAudioSource = AiryAudioManager.Instance.InitAudioSource ("Button");
+        AiryAudioActions.Play (t_airyAudioSource);
 
+        myUI.SetActive (false);
+        myObject_ButtonShow.SetActive (true);
     }
 
     public void ShowAll () {
+        AiryAudioSource t_airyAudioSource = AiryAudioManager.Instance.InitAudioSource ("Button");
+        AiryAudioActions.Play (t_airyAudioSource);
 
+        myUI.SetActive (true);
+        myObject_ButtonShow.SetActive (false);
+        myObject_ButtonGameOverHome.SetActive (false);
     }
 
+    public void OnButtonShowMenu () {
+        AiryAudioSource t_airyAudioSource = AiryAudioManager.Instance.InitAudioSource ("Button");
+        AiryAudioActions.Play (t_airyAudioSource);
+
+        myPage_Menu.SetActive (true);
+        Time.timeScale = 0;
+    }
+
+    public void OnButtonHideMenu () {
+        AiryAudioSource t_airyAudioSource = AiryAudioManager.Instance.InitAudioSource ("Button");
+        AiryAudioActions.Play (t_airyAudioSource);
+
+        myPage_Menu.SetActive (false);
+        Time.timeScale = 1;
+    }
+
+    public void OnButtonRestart () {
+        AiryAudioSource t_airyAudioSource = AiryAudioManager.Instance.InitAudioSource ("Button");
+        AiryAudioActions.Play (t_airyAudioSource);
+
+        SceneManager.LoadScene (SceneManager.GetActiveScene ().name);
+        Time.timeScale = 1;
+    }
+
+    public void OnButtonHome () {
+        AiryAudioSource t_airyAudioSource = AiryAudioManager.Instance.InitAudioSource ("Button");
+        AiryAudioActions.Play (t_airyAudioSource);
+
+        SceneManager.LoadScene ("Menu");
+        Time.timeScale = 1;
+    }
+
+    public int GetSoundIndex (float g_radius) {
+        for (int i = 0; i < myRadiusList.Count; i++) {
+            if (myRadiusList[i] == g_radius) {
+                Debug.Log ("i+1");
+                return i + 1;
+            }
+        }
+        return 0;
+    }
 }

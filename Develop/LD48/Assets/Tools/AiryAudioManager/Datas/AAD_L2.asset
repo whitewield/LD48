@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51fffa709c363444fbd9a971338a4e42, type: 3}
+  m_Name: AAD_L2
+  m_EditorClassIdentifier: 
+  myName: L2
+  myAudioClips:
+  - {fileID: 8300000, guid: 015d83b7e4cbad64398dfd894b58152c, type: 3}
+  myVolume: 0.2
+  isRandomVolume: 0
+  myVolumeRange: {x: 1, y: 1}
+  myPitch: 0.5
+  isRandomPitch: 0
+  myPitchRange: {x: 0.9, y: 1.1}

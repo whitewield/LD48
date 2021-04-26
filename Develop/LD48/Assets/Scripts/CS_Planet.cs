@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Hang.AiryAudio;
 
 public class CS_Planet : MonoBehaviour {
     [SerializeField] float myMultiplier_Radius = 0.5f;
@@ -34,7 +35,9 @@ public class CS_Planet : MonoBehaviour {
     private float myLerpRadiusMultiplier_Process = 1;
     [SerializeField] float myLerpRadiusMultiplier_Speed = 2;
 
-    public void Init (CS_Planet g_parent, float g_radius, float g_speed, float g_rotationZ, Gradient g_gradient = null) {
+    private string mySFX = "";
+
+    public void Init (CS_Planet g_parent, float g_radius, float g_speed, float g_rotationZ, string g_sfx, Gradient g_gradient = null) {
         myParent = g_parent;
         if (myParent != null) {
             myParent.SetChild (this);
@@ -51,6 +54,8 @@ public class CS_Planet : MonoBehaviour {
         } else {
             myLineRenderer.colorGradient = g_gradient;
         }
+
+        mySFX = g_sfx;
     }
 
     public void SetMultiplier_Speed (float g_multiplier, bool g_doResetRotation = false) {
@@ -64,11 +69,12 @@ public class CS_Planet : MonoBehaviour {
         return myMultiplier_Speed;
     }
 
-    public void LerpMultiplier_Radius (float g_multiplier) {
+    public void LerpMultiplier_Radius (float g_multiplier, string g_sfx) {
         myLerpRadiusMultiplier_To = g_multiplier;
         myLerpRadiusMultiplier_From = myMultiplier_Radius;
         myLerpRadiusMultiplier_Process = 0;
         doLerpRadiusMultiplier = true;
+        mySFX = g_sfx;
     }
 
     private void Update_LerpRadiusMultiplier () {
@@ -80,6 +86,8 @@ public class CS_Planet : MonoBehaviour {
         if (myLerpRadiusMultiplier_Process >= 1) {
             myLerpRadiusMultiplier_Process = 1;
             doLerpRadiusMultiplier = false;
+            // clear trail
+            CS_GameManager.Instance.ClearTrail ();
         }
 
         myMultiplier_Radius = Mathf.Lerp (myLerpRadiusMultiplier_From, myLerpRadiusMultiplier_To, myLerpRadiusMultiplier_Process);
@@ -181,6 +189,9 @@ public class CS_Planet : MonoBehaviour {
         if (doRotateBack == false) {
             myRotationZ += Time.fixedDeltaTime * mySpeed;
             if (myRotationZ > 360) {
+                foreach(CS_Planet f_child in myChildrenList) {
+                    f_child.PlaySFX ();
+                }
                 myRotationZ -= 360;
             }
         } else {
@@ -202,9 +213,20 @@ public class CS_Planet : MonoBehaviour {
         myTrail.Clear ();
     }
 
+    public void HideTail () {
+        if (myTrail == null) {
+            return;
+        }
+        myTrail.enabled = false;
+    }
+
     public void HideLine () {
         myLineRenderer.enabled = false;
         myCollider.enabled = false;
+    }
+
+    public void RemoveSFX () {
+        mySFX = "";
     }
 
     public float GetChildMaxSpeedMultiplier () {
@@ -215,7 +237,29 @@ public class CS_Planet : MonoBehaviour {
         return t_multiplier;
     }
 
+    public CS_Planet GetChild () {
+        if (myChildrenList != null && myChildrenList.Count >= 1) {
+            return myChildrenList[0];
+        }
+        return null;
+    }
+
     public bool OnClick () {
-        return CS_GameManager.Instance.OnClickPlanet (this);
+        if (CS_GameManager.Instance != null) {
+            return CS_GameManager.Instance.OnClickPlanet (this);
+        }
+
+        if (CS_MenuManager.Instance != null) {
+            return CS_MenuManager.Instance.OnClickPlanet (this);
+        }
+
+        return false;
+    }
+
+    public void PlaySFX () {
+        //if (mySFX != null && mySFX != "" && mySFX != "H0" && mySFX != "L0") {
+        //    AiryAudioSource t_airyAudioSource = AiryAudioManager.Instance.InitAudioSource (mySFX);
+        //    AiryAudioActions.Play (t_airyAudioSource);
+        //}
     }
 }

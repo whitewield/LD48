@@ -6,11 +6,11 @@ public class CS_CameraManager : MonoBehaviour {
     private static CS_CameraManager instance = null;
     public static CS_CameraManager Instance { get { return instance; } }
 
-    [SerializeField] Camera myCamera = null;
-    private CS_Planet myLookAtTarget = null;
-    [SerializeField] float myLookAtSpeed = 10;
-    private float myLookAtProcess = 0;
-    private bool doLookAt = false;
+    [SerializeField] protected Camera myCamera = null;
+    protected CS_Planet myLookAtTarget = null;
+    [SerializeField] protected float myLookAtSpeed = 10;
+    protected float myLookAtProcess = 0;
+    protected bool doLookAt = false;
 
     private void Awake () {
         if (instance != null && instance != this) {
@@ -26,7 +26,7 @@ public class CS_CameraManager : MonoBehaviour {
         myLookAtTarget = g_planet;
     }
 
-    private void FixedUpdate () {
+    protected virtual void FixedUpdate () {
         if (doLookAt == true) {
             myLookAtProcess += Time.fixedDeltaTime * myLookAtSpeed;
             // stop

@@ -107,16 +107,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 316f082c090aa7d40af6bb76158ceb6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  myMultiplier_Radius: 0.5
+  myMultiplier_Radius: 0.45
   myMultiplier_Speed: 2
   myRotateBack_Speed: 2
   myTransform_Children: {fileID: 2966650209518618677}
   myTransform_Display: {fileID: 2966650209495756597}
   myGradient:
     serializedVersion: 2
-    key0: {r: 0.3647059, g: 0.20784314, b: 0.8392157, a: 1}
-    key1: {r: 0.8784314, g: 0.45882353, b: 0.654902, a: 1}
-    key2: {r: 0.3647059, g: 0.20784314, b: 0.8392157, a: 0}
+    key0: {r: 0.2901961, g: 0.8156863, b: 0.9882353, a: 1}
+    key1: {r: 0.9607843, g: 0.57254905, b: 0.78431374, a: 1}
+    key2: {r: 0.2901961, g: 0.8156863, b: 0.9882353, a: 0}
     key3: {r: 0.1986917, g: 0.48269862, b: 0.8962264, a: 0}
     key4: {r: 0, g: 0, b: 0, a: 0}
     key5: {r: 0, g: 0, b: 0, a: 0}
