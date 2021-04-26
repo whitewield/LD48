@@ -7,8 +7,7 @@ public class CS_CameraManager : MonoBehaviour {
     public static CS_CameraManager Instance { get { return instance; } }
 
     [SerializeField] Camera myCamera = null;
-    private Transform myLookAtTargetTransform = null;
-    private float myLookAtTargetSize = 6;
+    private CS_Planet myLookAtTarget = null;
     [SerializeField] float myLookAtSpeed = 10;
     private float myLookAtProcess = 0;
     private bool doLookAt = false;
@@ -21,18 +20,10 @@ public class CS_CameraManager : MonoBehaviour {
         }
     }
 
-    public void LookAt (Transform g_target, float g_size) {
-        if (g_target == myLookAtTargetTransform) {
-            return;
-        }
-
+    public void LookAt (CS_Planet g_planet) {
         doLookAt = true;
         myLookAtProcess = 0;
-        myLookAtTargetTransform = g_target;
-        myLookAtTargetSize = g_size;
-        if (myLookAtTargetSize == 0) {
-            myLookAtTargetSize = 6;
-        }
+        myLookAtTarget = g_planet;
     }
 
     private void FixedUpdate () {
@@ -42,22 +33,29 @@ public class CS_CameraManager : MonoBehaviour {
             if (myLookAtProcess >= 1) {
                 myLookAtProcess = 1;
                 doLookAt = false;
-                Debug.Log ("stop");
             }
 
             // get position
-            Vector3 t_targetPosition = myLookAtTargetTransform.position;
+            Vector3 t_targetPosition = Vector3.zero;
+            if (myLookAtTarget != null) {
+                t_targetPosition = myLookAtTarget.transform.position;
+            }
             t_targetPosition.z = 0;
             // move
             this.transform.position = Vector3.Lerp (this.transform.position, t_targetPosition, myLookAtProcess);
             // scale
-            myCamera.orthographicSize = Mathf.Lerp (myCamera.orthographicSize, myLookAtTargetSize, myLookAtProcess);
+            float t_size = 6;
+            if (myLookAtTarget != null) {
+                t_size = Mathf.Abs (myLookAtTarget.GetRadius ()) + 1;
+            }
+            myCamera.orthographicSize = Mathf.Lerp (myCamera.orthographicSize, t_size, myLookAtProcess);
 
         } else {
-            if (myLookAtTargetTransform == null) {
+            if (myLookAtTarget == null) {
                 this.transform.position = Vector3.zero;
             } else {
-                this.transform.position = myLookAtTargetTransform.position;
+                this.transform.position = myLookAtTarget.transform.position;
+                myCamera.orthographicSize = Mathf.Abs (myLookAtTarget.GetRadius ()) + 1;
             }
         }
     }

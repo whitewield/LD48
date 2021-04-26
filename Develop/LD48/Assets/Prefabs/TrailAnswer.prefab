@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7970468813233681638}
   - component: {fileID: 982360924176744935}
   m_Layer: 0
-  m_Name: Trail
+  m_Name: TrailAnswer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -68,8 +68,8 @@ TrailRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 1928294061
-  m_SortingLayer: 1
+  m_SortingLayerID: 940543613
+  m_SortingLayer: -1
   m_SortingOrder: 0
   m_Time: 120
   m_Parameters:
@@ -81,17 +81,17 @@ TrailRenderer:
       - serializedVersion: 3
         time: 0
         value: 1
-        inSlope: -1
-        outSlope: -1
+        inSlope: 0
+        outSlope: 0
         tangentMode: 34
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 1
-        value: 0
-        inSlope: -1
-        outSlope: -1
+        value: 1
+        inSlope: 0
+        outSlope: 0
         tangentMode: 34
         weightedMode: 0
         inWeight: 0.33333334
@@ -101,8 +101,8 @@ TrailRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0.4392157, g: 0.4392157, b: 0.4392157, a: 1}
-      key1: {r: 0.25577855, g: 0.25577855, b: 0.25577855, a: 1}
+      key0: {r: 0.9056604, g: 0.9056604, b: 0.9056604, a: 1}
+      key1: {r: 0.9056604, g: 0.9056604, b: 0.9056604, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -134,6 +134,6 @@ TrailRenderer:
     textureMode: 0
     shadowBias: 0.5
     generateLightingData: 0
-  m_MinVertexDistance: 0.02
+  m_MinVertexDistance: 0.1
   m_Autodestruct: 0
   m_Emitting: 1
